@@ -86,4 +86,88 @@ public_users.get('/review/:isbn',function (req, res) {
   res.send(JSON.stringify(books[req.params.isbn].reviews,null,4));
 });
 
+
+function getBookList(){
+  return new Promise((resolve,reject)=>{
+    resolve(books);
+  })
+}
+
+//Task 10, promise/asyn booklist
+public_users.get('/',function (req, res) {
+  getBookList().then(
+    (bk)=>res.send(JSON.stringify(bk, null, 4)),
+    (error) => res.send("Rejected")
+  );  
+});
+
+
+function getFromISBN(isbn){
+  let book = books[isbn];  
+  return new Promise((resolve,reject)=>{
+    if (book) {
+      resolve(book);
+    }else{
+      reject("Could not find the book!");
+    }    
+  })
+}
+// Task 11, ISBN promise/async
+public_users.get('/isbn/:isbn',function (req, res) {
+  const isbn = req.params.isbn;
+  getFromISBN(isbn).then(
+    (bk)=>res.send(JSON.stringify(bk, null, 4)),
+    (error) => res.send(error)
+  )
+ });
+
+
+function getFromAuthor(author){
+  let output = [];
+  return new Promise((resolve,reject)=>{
+    for (var isbn in books) {
+      let book = books[isbn];
+      if (book.author === author){
+        output.push(book);
+      }
+    }
+    resolve(output);  
+  })
+}
+
+ // Task 12 
+
+public_users.get('/author/:author',function (req, res) {
+  const author = req.params.author;
+  getFromAuthor(author)
+  .then(
+    result =>res.send(JSON.stringify(result, null, 4))
+  );
+});
+
+
+
+function getFromTitle(title){
+  let output = [];
+  return new Promise((resolve,reject)=>{
+    for (var isbn in books) {
+      let book = books[isbn];
+      if (book.title === title){
+        output.push(book);
+      }
+    }
+    resolve(output);  
+  })
+}
+
+// Task 13
+public_users.get('/title/:title',function (req, res) {
+  const title = req.params.title;
+  getFromTitle(title)
+  .then(
+    result =>res.send(JSON.stringify(result, null, 4))
+  );
+});
+
+
 module.exports.general = public_users;
